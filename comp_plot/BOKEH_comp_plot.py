@@ -134,6 +134,11 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 	# This will not change your system timezone settings
 	################################################################################################################################################################
 
+	for label in DATA:
+		for key in DATA[label]:
+			if key != 'color':
+				DATA[label][key]['nicetime'] = [dat.strftime('%d-%m-%Y %H:%M:%S') for dat in DATA[label][key]['x']]
+
 	if sup_title == '':
 		sup_title = """<font size="4">Use the "Box Select" tool to select data of interest.</br>The table shows statistics between each dataset and the data shown in black.</font></br></br>"""
 
@@ -252,7 +257,7 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 
 	TOOLS = ["pan,hover,wheel_zoom,box_zoom,undo,redo,reset,box_select,save"] # interactive tools available in the html plot
 
-	fig = figure(plot_width=900,plot_height=200+35*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y]) # figure with the time series
+	fig = figure(plot_width=900,plot_height=200+35*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y],toolbar_location='left') # figure with the time series
 
 	fig.tools[-2].dimensions='width' # only allow the box select tool to select data along the X axis (will select all Y data in a given X range)
 
@@ -289,7 +294,9 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 
 	# hover tool configuration
 	fig.select_one(HoverTool).tooltips = [
-	     ('x, y', '@x, @y'),
+		('index','$index'),
+	    ('y','@y'),
+	    ('x','@nicetime'),
 	]
 
 	N_plots = range(len(plots)) # used in the checkbox callbacks
