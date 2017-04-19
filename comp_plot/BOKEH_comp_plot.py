@@ -14,7 +14,27 @@
 '''
 This is an attempt to make a generic function to produce analysis plots for time series.
 
-The function bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2') returns a bokeh gridplot object:
+# the function freq_match(DATA,select,FREQ,date_range=[None,None],save='') returns a dictionary
+
+	- DATA is a dictionary of the form
+	{ 
+		'label': {'x':[...],'y':[...]},
+		'label1': {'x':[...],'y':[...]},
+		etc ...
+	}
+	with each 'label' associated with x (datetime) and y values
+
+	- select is one of the labels, all other 'label' data will be filtered to only keep coincident data.
+	- date_range[0] is the starting date for the matching & averaging YYYY-MM-DD-HH (e.g. 2010-01-02-14 for 2 PM January 2nd 2010, -HH is optional)
+	- date_range[1] is the end date for the matching & averaging
+	- FREQ is the frequency of data matching & averaging, date_range will be divided in intervals of FREQ 
+		- FREQ must be of the form '1 hours' or '2.3 days' or '7.21 weeks', put an 's' even for 1
+		- Matching and averaging can be very time consuming for the smaller frequencies
+	- save is the full path to where the FREQly matched and averaged data will be saved, if not specified the data will not be saved.
+
+	- a dictionary is returned, it can directly be used in the function bok_comp()
+
+# The function bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2') returns a bokeh gridplot object:
 
 If you have data 'select' to which you want to compare several datasets 'lab0', 'lab1', etc.
 the DICTIONARY (or OrderedDict) DATA must be of the form:
@@ -48,11 +68,11 @@ The data in the table will also be updated based on the data selected within the
 	- 'select' is the name of the common data to which all dataset will be compared
 	- 'xlab' is the label of the x axis
 	- 'ylab' is the label of the y axis
-	- 'sup_title' is the hader of the html page
+	- 'sup_title' is the header of the html page
 	- 'notes' is a string of html code that will be displayed in a text widget beside the plots
 	- 'prec' is a "number string" that sets the precision of the values displayed in the table
 
-the function write_html(bok_obj,tab='bokeh',save='default.html') will create the html plot:
+# the function write_html(bok_obj,tab='bokeh',save='default.html') will create the html plot:
 	- "save" is the full path to the html file
 	- "tab" is the string that will appear in the browser tab when oppening the html file
 	- bok_obj is any bokeh object (figure,gridplot,tabs etc.)
