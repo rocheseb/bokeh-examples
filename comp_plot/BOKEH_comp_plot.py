@@ -153,7 +153,7 @@ def progress(i,tot,bar_length=20,char=''):
 	percent=(float(i)+1.0)/tot
 	hashes='#' * int(round(percent*bar_length))
 	spaces=' ' * (bar_length - len(hashes))
-	sys.stdout.write("\rPercent:[{0}] {1}%".format(hashes + spaces, int(round(percent * 100)))+"    "+str(i+1)+"/"+str(tot)+' Site: '+char+'                    ')
+	sys.stdout.write("\rPercent:[{0}] {1}%".format(hashes + spaces, int(round(percent * 100)))+"    "+str(i+1)+"/"+str(tot)+' Data: '+char+'                    ')
 	sys.stdout.flush()
 
 ###############################################################################################################################
@@ -166,15 +166,15 @@ def filter(DATA,limit,condition=''):
 	"""
 
 	if condition == '>':
-		filter_IDs = [i for i in range(len(DATA)) if DATA[i]>float(limit)]
+		filter_IDs = [i for i in range(len(DATA)) if DATA[i]>limit]
 	if condition == '>=':
-		filter_IDs = [i for i in range(len(DATA)) if DATA[i]>=float(limit)]
+		filter_IDs = [i for i in range(len(DATA)) if DATA[i]>=limit]
 	if condition == '<':
-		filter_IDs = [i for i in range(len(DATA)) if DATA[i]<float(limit)]
+		filter_IDs = [i for i in range(len(DATA)) if DATA[i]<limit]
 	if condition == '<=':
-		filter_IDs = [i for i in range(len(DATA)) if DATA[i]<=float(limit)]
+		filter_IDs = [i for i in range(len(DATA)) if DATA[i]<=limit]
 	if condition == '==':
-		filter_IDs = [i for i in range(len(DATA)) if DATA[i]==float(limit)]
+		filter_IDs = [i for i in range(len(DATA)) if DATA[i]==limit]
 
 	return filter_IDs
 
@@ -663,6 +663,144 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 		np.save(save,FREQ_DATA)
 
 	return FREQ_DATA
+
+###############################################################################################################################
+###############################################################################################################################
+
+# plot time series
+def bok_series(DATA,xlab='',ylab='',sup_title='',notes=''):
+	"""
+	the DICTIONARY (or OrderedDict) DATA must be of the form:
+
+	DATA={ 
+			'lab': {
+					'x':[...],
+					'y':[...],
+					'color':'red',
+					},
+			'lab2': {
+					'x':[...],
+					'y':[...],
+					'color':'red',
+					},
+			'lab3': {
+					'x':[...],
+					'y':[...],
+					'color':'red',
+					},
+			etc...
+		 }
+
+	if colors are not specified, the kelly_color dictionary will be used
+
+	There will be a figure, and one "notes" text widget.
+	The main figure will show all the time series
+
+		- 'xlab' is the label of the x axis
+		- 'ylab' is the label of the y axis
+		- 'sup_title' is the header of the html page
+		- 'notes' is a string of html code that will be displayed in a text widget beside the plots
+	"""
+
+	######## /!\ important time handling to make sure times don't get shifted from UTC due to computer environment variables when using datetime objects ###########
+	os.environ['TZ'] = 'UTC'
+	time.tzset()
+	# This will not change your system timezone settings
+	################################################################################################################################################################
+
+	for label in DATA:
+		try:
+			test = DATA[label]['color']
+		except KeyError:
+			DATA[label]['color'] = kelly_colors[kelly_colors.keys()[DATA.keys().index(label)]]
+
+		DATA[label]['nicetime'] = [dat.strftime('%d-%m-%Y %H:%M:%S') for dat in DATA[label]['x']]
+
+
+	if sup_title == '':
+		sup_title = """<font size="4">Use the "Box Select" tool to select data of interest.</br>The table shows statistics between each dataset and the data shown in black.</font></br></br>"""
+
+	header = Div(text=sup_title,width=700) # the title of the dashboard
+
+	sources = {} # data sources for the main figure
+	for label in DATA:
+		sources[label] = ColumnDataSource(data={key:DATA[label][key] for key in DATA[label] if key!='color'}) # 'label' data
+
+	#get the min and max of all the data x and y
+	min_x = min([DATA[label]['x'][0] for label in DATA])
+	max_x = max([DATA[label]['x'][-1] for label in DATA])
+
+	min_y = min([min(abs(DATA[label]['y'])) for label in DATA])
+	max_y = max([max(DATA[label]['y']) for label in DATA])
+
+	max_ampli = max_y - min_y
+
+	# we will set the y axis range at +/- 10% of the data max amplitude
+	min_y = min_y - max_ampli*10/100
+	max_y = max_y + max_ampli*10/100
+
+	TOOLS = ["pan,hover,wheel_zoom,box_zoom,undo,redo,reset,save"] # interactive tools available in the html plot
+
+	fig = figure(webgl=True, plot_width=900,plot_height=200+20*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y],toolbar_location='left') # figure with the time series
+
+	# actual time series
+	plots = []
+	for label in DATA:
+		plots.append( fig.scatter(x='x',y='y',color=DATA[label]['color'],alpha=0.5,source=sources[label]) )
+
+	# hover tool configuration
+	fig.select_one(HoverTool).tooltips = [
+		('index','$index'),
+	    ('y','@y'),
+	    ('x','@nicetime'),
+	]
+
+	N_plots = range(len(plots)) # used in the checkbox callbacks
+
+	# setup the legend and axis labels for the main figure
+	legend=Legend(items=[(DATA.keys()[i],[plots[i]]) for i in range(len(DATA.keys()))],location=(0,0))
+	fig.add_layout(legend,'right')
+	fig.yaxis.axis_label = ylab
+	fig.xaxis.axis_label = xlab
+
+	checkbox = CheckboxGroup(labels=DATA.keys(),active=range(len(DATA.keys())),width=100) # the group of checkboxes, one for each 'label' in DATA
+
+	iterable = [('p'+str(i),plots[i]) for i in N_plots]+[('checkbox',checkbox)] # associate each element needed in the callback to a string
+
+	# checkboxes to trigger line visibility
+	checkbox_iterable = [('p'+str(i),plots[i]) for i in N_plots]+[('checkbox',checkbox)]
+	checkbox_code = ''.join(['p'+str(i)+'.visible = checkbox.active.includes('+str(i)+');' for i in N_plots])
+	checkbox.callback = CustomJS(args={key: value for key,value in checkbox_iterable}, code=checkbox_code)
+
+	# button to uncheck all checkboxes
+	clear_button = Button(label='Clear all',width=120)
+	clear_button_code = """checkbox.active=[];"""+checkbox_code
+	clear_button.callback = CustomJS(args={key: value for key,value in checkbox_iterable}, code=clear_button_code)
+
+	# button to check all checkboxes
+	check_button = Button(label='Check all',width=120)
+	check_button_code = """checkbox.active="""+str(N_plots)+""";"""+checkbox_code
+	check_button.callback = CustomJS(args={key: value for key,value in checkbox_iterable}, code=check_button_code)
+
+	# default text of the 'info' Div widget
+	if notes == '':
+		notes =   """
+				<font size="5"><b>Notes:</b></font></br></br>
+				<font size="2">
+
+				</font>
+				"""
+	dumdiv = Div(text='',width=50) # dummy div widget to force a padding between gridplot elements
+
+	info = Div(text=notes,width=400,height=300) # the information Div widget
+
+	group = widgetbox(checkbox,clear_button,check_button) # group the checkboxes and buttons in a common "widget box"
+
+	sub_grid = gridplot([[fig,group],[info]],toolbar_location='left') # put everything in a grid
+
+	grid = gridplot([[header],[sub_grid]],toolbar_location=None) # put the previous grid under the 'header' Div widget, this is done so that the toolbar of sub_grid won't appear on the side of the header.
+
+	return grid
 
 ###############################################################################################################################
 ###############################################################################################################################
