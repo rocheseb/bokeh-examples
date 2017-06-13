@@ -218,7 +218,7 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 		- 'select' is the name of the common data to which all dataset will be compared
 		- 'xlab' is the label of the x axis
 		- 'ylab' is the label of the y axis
-		- 'sup_title' is the hader of the html page
+		- 'sup_title' is the header of the html page
 		- 'notes' is a string of html code that will be displayed in a text widget beside the plots
 		- 'prec' is a "number string" that sets the precision of the values displayed in the table
 	"""
