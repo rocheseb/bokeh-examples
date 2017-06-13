@@ -1,4 +1,4 @@
-BOKEH_comp_plot.py only contains functions
+BOKEH_comp_plot.py only contains functions that are used in the other Python programs
 
 example_comp_plot.py is the code that creates prescal.html, using data in pressure_sample_data.npy, and the image PEARL_logo.jpg
 
