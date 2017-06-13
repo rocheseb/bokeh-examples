@@ -6,10 +6,7 @@
 ####################
 
 """
-compare pressure measurements between different sensors in Eureka
-ParoSci 765 was a calibration sensor brought to Eureka during the extensive phase of the 2017 ACE/OSIRIS Validation campaign
-Vaisala PTU300 is the pressor sensor we use in parallel to TCCON measurements: 0.15 hPa accuracy
-Setra is the pressor sensor we used so far to process Eureka TCCON data: 0.55 hPa accuracy
+Example of use of the bok_comp function from BOKEH_comp_plot.py to produce a dashboard to compare time series
 """
 
 ####################
@@ -35,7 +32,7 @@ import netCDF4
 #FREQ_DATA = freq_match(DATA,'Lamont','1 days',date_range=['2015-01-01','2016-01-01'],save='TCCON_sample_data_co2_freq_1_days.npy')
 
 
-FREQ_DATA = np.load('TCCON_sample_data_co2_freq_1_days.npy').item() # this data was generated with the freq_match() function, using full time series of xCO2 from all TCCON sites (I didn't include that as it is ~70 MB)
+FREQ_DATA = np.load('TCCON_sample_data_co2_freq_1_days.npy').item() # this data was generated with the freq_match() function, using full time series of xCO2 from all TCCON sites (I didn't include that in the repository as it is ~70 MB)
 
 title = """ 
 <div align='right'>
