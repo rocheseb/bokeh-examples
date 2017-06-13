@@ -1,11 +1,9 @@
 #!/usr/bin/env python2.7
  # -*- coding: ascii -*-
 
-###########################################################
-# 					Sebastien Roche
-#			sebastien.roche@mail.utoronto.ca
-#     functions to create comparison plots for time series
-###########################################################
+########################################################
+# Functions to create comparison plots for time series #
+########################################################
 
 #######################
 # Library description #
