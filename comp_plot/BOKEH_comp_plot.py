@@ -1,5 +1,7 @@
-#!/usr/bin/env python2.7
+#!/var/lib/py27_sroche/bin/python
  # -*- coding: ascii -*-
+
+from __future__ import print_function # allows the use of Python 3.x print(function in python 2.x code so that print('a','b') prints 'a b' and not ('a','b')
 
 ########################################################
 # Functions to create comparison plots for time series #
@@ -300,7 +302,7 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 			tab['Bias']["""+str(count)+"""] = 0;
 			tab['Scatter']["""+str(count)+"""] = 0;
 			tab['R']["""+str(count)+"""] = 0;
-			dt.trigger('change');
+			dt.change.emit();
 			return;
 		}
 
@@ -334,8 +336,8 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 		tab['Scatter']["""+str(count)+"""] = Math.sqrt(scat/(inds.length -1)).toFixed("""+prec+""");
 		tab['R']["""+str(count)+"""] = (T1/Math.sqrt(T2*T3)).toFixed("""+prec+""");
 
-		dt.trigger('change');
-		scor.trigger('change');
+		dt.change.emit();
+		scor.change.emit();
 		""")
 
 		count+=1
@@ -353,9 +355,9 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 	min_y = min_y - max_ampli*10/100
 	max_y = max_y + max_ampli*10/100
 
-	TOOLS = ["pan,hover,wheel_zoom,box_zoom,undo,redo,reset,box_select,save"] # interactive tools available in the html plot
+	TOOLS = "pan,hover,wheel_zoom,box_zoom,undo,redo,reset,box_select,save" # interactive tools available in the html plot
 
-	fig = figure(plot_width=900,plot_height=200+20*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y],toolbar_location='left') # figure with the time series
+	fig = figure(output_backend="webgl",plot_width=900,plot_height=200+20*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y],toolbar_location='left') # figure with the time series
 
 	fig.tools[-2].dimensions='width' # only allow the box select tool to select data along the X axis (will select all Y data in a given X range)
 
@@ -410,7 +412,7 @@ def bok_comp(DATA,select,xlab='',ylab='',sup_title='',notes='',prec='2'):
 	fig.xaxis.axis_label = xlab
 
 	# correlation figure
-	cor_fig = figure(title = 'Correlations', plot_width = 250, plot_height = 280, x_range = [min_y,max_y], y_range = [min_y,max_y]) 
+	cor_fig = figure(output_backend="webgl",title = 'Correlations', plot_width = 250, plot_height = 280, x_range = [min_y,max_y], y_range = [min_y,max_y]) 
 	cor_fig.toolbar.logo = None
 	cor_fig.toolbar_location = None
 	cor_fig.xaxis.axis_label = ' '.join([select,ylab])
@@ -549,7 +551,7 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 				else:
 					t0 = datetime.strptime(start,'%Y-%m-%d')
 			else:
-				print "Invalid input"
+				print("Invalid input")
 				return "Invalid input: date_range[0] must be of the form 'YYY-MM-DD-HH'"
 
 		tf = ''	
@@ -560,17 +562,17 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 				else:
 					tf = datetime.strptime(end,'%Y-%m-%d')
 			else:
-				print "Invalid input"
+				print("Invalid input")
 				return "Invalid input: date_range[1] must be of the form 'YYY-MM-DD-HH'"
 
 
 			if type(tf) == datetime:
 				if tf < t0:
-					print "The starting date shall precede the end date"
+					print("The starting date shall precede the end date")
 					return 'Invalid input: date_range[1] < date_range[0]'
 
 
-	print select,'time range:\nStart',t0.strftime('%d-%m-%Y %H:%M'),'\nEnd',tf.strftime('%d-%m-%Y %H:%M')
+	print(select,'time range:\nStart',t0.strftime('%d-%m-%Y %H:%M'),'\nEnd',tf.strftime('%d-%m-%Y %H:%M'))
 
 	FREQ_DATA = {}
 
@@ -586,7 +588,7 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 	span = int(ceil((tf-t0).total_seconds()/frequency))
 
 	milestone = time.time()
-	print 'Dividing',select,'time range in',span,'intervals of',FREQ
+	print('Dividing',select,'time range in',span,'intervals of',FREQ)
 	tmin = t0
 	temp = [[] for i in range(span)]
 	for interval in range(span):
@@ -596,8 +598,8 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 		times_ID=np.nonzero(np.in1d(DATA[select]['x'],times))[0]
 		temp[interval] = [j for j in times_ID]
 		tmin = tmax
-	print '\ntimes DONE in',time.time()-milestone,'seconds'
-	print select,'has',len([i for i in temp if i!=[]]),'intervals of',FREQ,'with data within the time range\n'
+	print('\ntimes DONE in',time.time()-milestone,'seconds')
+	print(select,'has',len([i for i in temp if i!=[]]),'intervals of',FREQ,'with data within the time range\n')
 
 	for label in DATA:
 		if label != select:
@@ -605,7 +607,7 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 			freq_select_data = {}
 
 			milestone = time.time()
-			print label+':\nMatching and averaging:'
+			print(label+':\nMatching and averaging:')
 			tmin = t0
 			temp1 = [[] for i in range(span)]
 			# this loop can be very time consuming if the frequency of matching/averaging is small
@@ -624,11 +626,11 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 				tmin=tmax
 			try:
 				if len([i for i in temp1 if i!=[]])==0:
-					print '\nmatching DONE in',time.time()-milestone,'seconds'
-					print 'Matching intervals of',FREQ,'within the time range: 0 /',len([i for i in temp if i!=[]])
+					print('\nmatching DONE in',time.time()-milestone,'seconds')
+					print('Matching intervals of',FREQ,'within the time range: 0 /',len([i for i in temp if i!=[]]))
 					continue
 			except NameError:
-				print '\n',label,' has no data within the time range\n'
+				print('\n',label,' has no data within the time range\n')
 				continue
 
 			FREQ_DATA[label] = {} # only keep data with matches
@@ -637,7 +639,7 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 			tp1=[i for i in temp1 if i!=[] and temp[temp1.index(i)]!=[]] # Matching indices for data in DATA[label]
 
 			if len(tp)!=len(tp1):
-				print 'WARNING: length of matches is different: tp1=',len(tp1),'; tp=',len(tp)
+				print('WARNING: length of matches is different: tp1=',len(tp1),'; tp=',len(tp))
 
 	
 			freq_select_data['y'] = np.array([sum([DATA[select]['y'][j] for j in i])/len(i) for i in tp])
@@ -648,11 +650,11 @@ def freq_match(DATA,select,FREQ,date_range=[None,None],save=''):
 				freq_select_data['x'] = np.array([datetime(*time.gmtime(sum([calendar.timegm(DATA[select]['x'][j].timetuple()) for j in i])/len(i))[:6]) for i in tp])
 				freq_label_data['x'] = np.array([datetime(*time.gmtime(sum([calendar.timegm(DATA[label]['x'][j].timetuple()) for j in i])/len(i))[:6]) for i in tp1])
 			except IndexError:
-				print 'Index error for',label
+				print('Index error for',label
+				)
+			print('\nMatching','intervals of',FREQ,'within the time range: ',len(tp),'/',len([i for i in temp if i!=[]]))
 
-			print '\nMatching','intervals of',FREQ,'within the time range: ',len(tp),'/',len([i for i in temp if i!=[]])
-
-			print 'Matching and averaging DONE in',time.time()-milestone,'seconds\n' 
+			print('Matching and averaging DONE in',time.time()-milestone,'seconds\n')
 
 			FREQ_DATA[label][select] = freq_select_data
 			FREQ_DATA[label][label] = freq_label_data
@@ -737,9 +739,9 @@ def bok_series(DATA,xlab='',ylab='',sup_title='',notes=''):
 	min_y = min_y - max_ampli*10/100
 	max_y = max_y + max_ampli*10/100
 
-	TOOLS = ["pan,hover,wheel_zoom,box_zoom,undo,redo,reset,save"] # interactive tools available in the html plot
+	TOOLS = "pan,hover,wheel_zoom,box_zoom,undo,redo,reset,save" # interactive tools available in the html plot
 
-	fig = figure(webgl=True, plot_width=900,plot_height=200+20*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y],toolbar_location='left') # figure with the time series
+	fig = figure(output_backend="webgl", plot_width=900,plot_height=200+20*(len(DATA.keys())-2),tools=TOOLS,x_axis_type='datetime', y_range=[min_y,max_y],toolbar_location='left') # figure with the time series
 
 	# actual time series
 	plots = []

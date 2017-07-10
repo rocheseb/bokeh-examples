@@ -1,5 +1,7 @@
-#!/usr/bin/env python
+#!/var/lib/py27_sroche/bin/python
  # -*- coding: ascii -*-
+
+from __future__ import print_function # allows the use of Python 3.x print(function in python 2.x code so that print('a','b') prints 'a b' and not ('a','b')
 
 ####################
 # code description #

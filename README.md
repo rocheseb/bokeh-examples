@@ -1,6 +1,6 @@
 # README #
 
-All the codes and resulting html plots in this repository have only been tested with google chrome, bokeh 0.12.4, and python 2.7
+All the codes and resulting html plots in this repository have only been tested with google chrome, bokeh 0.12.6, and python 2.7
 
 Libraries:
 
