@@ -108,6 +108,7 @@ def show_hide_button(in_lab,checkbox_name,checkbox_code,iterable,width=100):
 def show_hide_button_aware(keyword_dict,checkbox_code,iterable,width=100,separator='-'):
 	"""
 	Return a number of button that check / uncheck boxes in a CheckBoxGroup based on a keyword list and the CheckBoxGroup labels
+
 	- keyword_dict: an OrderedDict of groups of keywords, each group has keyword of a specific length {key1:['abc','def','ghi',...],key2:['ab','cd',...],...}
 	- checkbox_code: callback code of the CheckBoxGroup
 	- iterable: list of (key,value) tuples for the arguments of the CheckBoxGroup callback, must include the CheckBoxGroup itself as ('checkbox',CheckBoxGroup)
@@ -176,6 +177,7 @@ def show_hide_button_aware(keyword_dict,checkbox_code,iterable,width=100,separat
 
 	for (i=0;i<button_list.length;i++){
 		button_list[i].button_type = "success"
+		button_list[i].label = "Show "+button_list[i].name
 	}
 	"""
 
@@ -185,6 +187,7 @@ def show_hide_button_aware(keyword_dict,checkbox_code,iterable,width=100,separat
 
 	for (i=0;i<button_list.length;i++){
 		button_list[i].button_type = "danger"
+		button_list[i].label = "Hide "+button_list[i].name
 	}
 	"""
 
