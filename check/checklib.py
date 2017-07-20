@@ -2,6 +2,15 @@
 # code description #
 ####################
 
+"""
+show_hide_button() makes one button that checks/unchecks checkboxes with a given keyword in their label
+
+show_hide_button_aware() makes a series of buttons that check/uncheck checkboxes with given keywords while being "aware" of each other
+
+dumfig() makes a dummy figure with only the legend visible in order to place the legend anywhere in a grid layout
+
+"""
+
 #############
 # Libraries #
 #############
