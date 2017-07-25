@@ -114,7 +114,7 @@ def show_hide_button(in_lab,checkbox_name,checkbox_code,iterable,width=100):
 
 	return button
 
-def show_hide_button_aware(keyword_dict,checkbox_code,iterable,width=100,separator='-'):
+def show_hide_button_list(keyword_dict,checkbox_code,iterable,width=100,separator='-'):
 	"""
 	Return a number of button that check / uncheck boxes in a CheckBoxGroup based on a keyword list and the CheckBoxGroup labels
 
@@ -291,7 +291,7 @@ if __name__ == "__main__":
 	keyword_dict = collections.OrderedDict([('date',sorted(column.keys())),('window',sorted(column[date].keys())),('ret',sorted(column[date][window].keys()))])
 
 	# create all the buttons
-	button_list = show_hide_button_aware(keyword_dict,checkbox_code,iterable,width=120)
+	button_list = show_hide_button_list(keyword_dict,checkbox_code,iterable,width=120)
 
 	# first two buttons are "clear all" and "check all" buttons
 	clear_button,check_button = button_list[:2]
