@@ -1,0 +1,11 @@
+.custom_button button.bk-bs-btn.bk-bs-btn-default  {
+	border:none;
+	background-color: lightblue;
+	color:navy;
+	font-weight: bold;
+}
+
+label {
+	font-weight: bold;
+	color:teal;
+}
