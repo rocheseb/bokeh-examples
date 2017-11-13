@@ -90,12 +90,12 @@ def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_co
 	]
 
 	# widgets
-	select = RangeSlider(start=start,end=end,step=step,range=(low,high),callback_policy = 'mouseup')
+	select = RangeSlider(start=start,end=end,step=step,value=(low,high),callback_policy = 'mouseup')
 
 	# javascript callback codes for the widgets
 	select_code = """
-	var maxval = select.range[1];
-	var minval = select.range[0]
+	var maxval = select.value[1];
+	var minval = select.value[0]
 
 	map.high = maxval;
 	map.low = minval;
