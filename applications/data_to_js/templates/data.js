@@ -1,1 +1,1 @@
-var DATA = {'a':[5,4,3],'b':{'c':[10,12,14]}};
+will be overwritten by main.py
