@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from random import random
 
 from bokeh.io import show
@@ -7,7 +8,7 @@ from bokeh.models import LinearColorMapper, ColorBar, ColumnDataSource, HoverToo
 from bokeh.layouts import gridplot
 from bokeh.resources import CDN
 from bokeh.embed import file_html
-from bokeh.palettes import Magma256
+from bokeh.palettes import Magma256, Viridis256
 
 def flatten(obj):
 
@@ -18,7 +19,7 @@ def flatten(obj):
 		else:
 			yield item
 
-def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_color='red',start=None,end=None,step=None,height=600,width=600):
+def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_color='red',start=None,end=None,step=None,height=600,width=600,axes=None):
 	"""
 	input:
 		- width / height : width and height of the heatmap figure
@@ -58,7 +59,10 @@ def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_co
 	color_bar = ColorBar(color_mapper=mapper,location=(0,0),label_standoff=15) # define the color bar with the linear color mapper
 
 	len_mat = len(matrix)
-	IDs = list(range(len_mat))*len_mat # list of column indices for the flattened matrix elements
+	if axes is None:
+		IDs = list(range(len_mat))*len_mat # list of column indices for the flattened matrix elements
+	else:
+		IDs = list(axes)*len_mat
 	source = ColumnDataSource( data={'row':np.array(sorted(IDs)),'col':np.array(IDs),'mat':np.array(list(flatten(matrix)))} )
 
 	TOOLS = "box_zoom,hover,save,pan,reset,wheel_zoom" # interactive tools for the plot
@@ -106,8 +110,37 @@ def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_co
 
 	return fig,dumfig,select
 
+def heatmap_layout(title,fig,dumfig,select):
+	"""
+	Some standard layout for the heatmap plots, with a title and information Div about the slider
+	"""
+
+	# add some text widgets
+	text = PreText(text='The low/high of the color mapper will be set to the values of the range slider\nValues > max are shown in red\nValues < min are shown in gray',width=800)
+	head = Div(text='<font size="12">{}</font></b>'.format(title),width=800)
+
+	# final plot layout
+	grid = gridplot([[fig,dumfig]],toolbar_location='left')
+	final = gridplot([[head],[select,text],[grid]],toolbar_location=None) # I put the first grid in a second one so I do not have the final toolbar by the widgets
+
+	return final
+
+def write_html(save_path,obj):
+	"""
+	Simple function to write html file
+	"""
+	with open(save_path,'w') as outfile:
+		outfile.write(file_html(obj,CDN,'heatmap'))	
 
 if __name__ == "__main__":
+
+	argu = sys.argv
+
+	try:
+		save_path = argu[1]
+	except IndexError:
+		print 'Missing argument: need a complete path to save the file'
+		sys.exit()
 
 	# color list to use for the color bar
 	magma = Magma256[::-1] 
@@ -115,17 +148,12 @@ if __name__ == "__main__":
 	# some data to plot
 	matrix = np.array([[100*random() for j in range(100)] for i in range(100)])
 
+	# get the plot elements
 	fig,dumfig,select = heatpack(matrix,palette=magma,low=10,high=90,start=0,end=100,step=1,width=400,height=400)
 
-	# add some text widgets
-	text = PreText(text='The low/high of the color mapper will be set to the values of the range slider\nValues > max are shown in red\nValues < min are shown in gray',width=800)
-	head = Div(text='<font size="12">Heatmap</font></b>',width=800)
-
-	# final plot layout
-	grid = gridplot([[fig,dumfig]],toolbar_location='left')
-	final = gridplot([[head],[select,text],[grid]],toolbar_location=None) # I put the first grid in a second one so I do not havet he final toolbar by the widgets
+	# add title and text widgets
+	final = heatmap_layout("Heatmap",fig,dumfig,select)
 
 	# write html file
-	outfile=open('heatmap.html','w')
-	outfile.write(file_html(final,CDN,'heatmap'))
-	outfile.close()
+	write_html(save_path,final)
+
