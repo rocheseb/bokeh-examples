@@ -68,7 +68,7 @@ def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_co
 	TOOLS = "box_zoom,hover,save,pan,reset,wheel_zoom" # interactive tools for the plot
 
 	# the heatmap plot
-	fig = figure(plot_width=width,plot_height=height,tools=TOOLS)
+	fig = figure(plot_width=width,plot_height=height,tools=TOOLS,active_drag="box_zoom")
 	rect = fig.rect(x='col',y='row',width=1,height=1,source=source,fill_color = {'field':'mat','transform':mapper},line_color=None)
 
 	# plot cosmetics
