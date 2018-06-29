@@ -1,23 +1,13 @@
 import numpy as np
 import sys
-from random import random
+from scipy.signal import gaussian
 
-from bokeh.io import show
 from bokeh.plotting import figure
 from bokeh.models import LinearColorMapper, ColorBar, ColumnDataSource, HoverTool, RangeSlider, PreText, CustomJS, Div
 from bokeh.layouts import gridplot
 from bokeh.resources import CDN
 from bokeh.embed import file_html
 from bokeh.palettes import Magma256, Viridis256
-
-def flatten(obj):
-
-	for item in obj:
-		if hasattr(item,'__iter__'):
-			for x in flatten(item):
-				yield x
-		else:
-			yield item
 
 def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_color='red',start=None,end=None,step=None,height=600,width=600,axes=None):
 	"""
@@ -63,13 +53,13 @@ def heatpack(matrix,palette=Magma256,low=None,high=None,low_color='gray',high_co
 		IDs = list(range(len_mat))*len_mat # list of column indices for the flattened matrix elements
 	else:
 		IDs = list(axes)*len_mat
-	source = ColumnDataSource( data={'row':np.array(sorted(IDs)),'col':np.array(IDs),'mat':np.array(list(flatten(matrix)))} )
+	source = ColumnDataSource( data={'row':np.array(sorted(IDs)),'col':np.array(IDs),'mat':matrix.flatten()} )
 
 	TOOLS = "box_zoom,hover,save,pan,reset,wheel_zoom" # interactive tools for the plot
 
 	# the heatmap plot
 	fig = figure(plot_width=width,plot_height=height,tools=TOOLS,active_drag="box_zoom")
-	rect = fig.rect(x='col',y='row',width=1,height=1,source=source,fill_color = {'field':'mat','transform':mapper},line_color=None)
+	rect = fig.rect(x='col',y='row',width=1.1,height=1.1,source=source,fill_color = {'field':'mat','transform':mapper},line_alpha=0,line_width=0,dilate=True)
 
 	# plot cosmetics
 	fig.grid.grid_line_color = None
@@ -146,7 +136,8 @@ if __name__ == "__main__":
 	magma = Magma256[::-1] 
 
 	# some data to plot
-	matrix = np.array([[100*random() for j in range(100)] for i in range(100)])
+	x = 10*gaussian(100,std=20)
+	matrix = np.matmul(x.reshape(100,1),x.reshape(1,100))
 
 	# get the plot elements
 	fig,dumfig,select = heatpack(matrix,palette=magma,low=10,high=90,start=0,end=100,step=1,width=400,height=400)
