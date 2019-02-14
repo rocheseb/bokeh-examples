@@ -27,3 +27,10 @@ def addLinkedCrosshairs(plots):
 				args = {'cross': crosshair, 'fig': figure}
 				figure.js_on_event('mousemove', CustomJS(args = args, code = js_move))
 				figure.js_on_event('mouseleave', CustomJS(args = args, code = js_leave))
+
+if __name__=="__main__":
+
+	plots = [figure(plot_width = 200, plot_height = 200, tools = '') for i in range(9)]
+	[plot.line(np.arange(10), np.random.random(10)) for plot in plots]
+	addLinkedCrosshairs(plots)
+	show(gridplot(children = [plot for plot in plots], ncols = 3))
